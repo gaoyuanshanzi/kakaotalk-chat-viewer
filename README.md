@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# 카카오톡 대화 뷰어 & 내보내기 웹 애플리케이션 (KakaoTalk Chat Viewer)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+카카오톡 대화 내용 내보내기 텍스트(`.txt`) 파일을 업로드하여 모던 화이트 모드 스타일의 UI로 시각화하고, 참여자별 실시간 필터링 및 4가지 다중 포맷(HTML, TXT, CSV, MD)으로 내보낼 수 있는 웹 애플리케이션입니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 배포 링크
 
-## React Compiler
+- **Vercel 라이브 사이트**: [https://temporary-spry-flurry-v0fvjy9.vercel.app](https://temporary-spry-flurry-v0fvjy9.vercel.app)
+  *(Vercel 계정 등록/영구 소유권 연동: [Claim Deployment](https://vercel.com/claim-deployment?code=bb213fde-dbb3-4e88-ad62-ab06166896db))*
+- **GitHub 저장소**: [https://github.com/gaoyuanshanzi/kakaotalk-chat-viewer](https://github.com/gaoyuanshanzi/kakaotalk-chat-viewer)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🔐 보안 및 접근 인증
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **초기 화면 관리자 인증**: 웹에 접근 시 초기 화면에는 관리자 정보가 일체 노출되지 않으며, 관리자 계정 정보를 직접 수동 입력해야 입장할 수 있습니다.
+  - **아이디**: `admin`
+  - **비밀번호**: `123jesus`
+- **로컬 보안 처리**: 업로드된 대화 텍스트 파일은 외부 서버로 전송되지 않으며, 사용자의 브라우저 내부에서만 안전하게 파싱 및 렌더링됩니다.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+---
+
+## 🎨 주요 디자인 및 기능 규격
+
+### 1. 화이트 모드(White Mode) 기반 카카오톡 UI
+- **배경색**: 깔끔하고 눈이 편안한 밝은 화이트/그레이 톤 (`#F8F9FA`, `#FFFFFF`)
+- **말풍선 디자인**:
+  - **상대방 메시지**: 흰색 카드 (`#FFFFFF`)에 미세한 테두리(`border-slate-200`) 및 부드러운 그림자.
+  - **내 메시지 (또는 강조 화자)**: 은은한 라이트 블루 포인트 컬러 (`bg-blue-50`, `border-blue-200`). 상단에서 '내 메시지' 화자를 지정할 수 있습니다.
+- **가독성 최적화**: Pretendard 산세리프 폰트, 여유 있는 마진과 줄간격.
+- **상세 구성**:
+  - 작성자 아바타 (참여자별 고유 파스텔톤 컬러 자동 부여), 발신 시간, 메시지 본문 구분.
+  - URL 링크(`http://`, `https://`) 자동 하이퍼링크 변환 및 새 창 열기.
+  - `.jpg`, `.png`, `사진` 등 미디어 파일 텍스트는 안내 아이콘 카드 형태로 시각적 구분.
+  - 메시지 내용 1클릭 복사 버튼.
+
+### 2. 정밀한 파싱 로직 및 날짜 구분선
+- **헤더 패턴**: `/^(\d{4}년\s\d{1,2}월\s\d{1,2}일\s(?:오전|오후)\s\d{1,2}:\d{2}),\s*([^:]+?)\s*:\s*(.*)/`
+- **줄바꿈 (Multiline) 처리**: 헤더 패턴에 맞지 않는 줄바꿈 텍스트는 이전 메시지 본문에 `\n`과 함께 완벽하게 병합.
+- **날짜 변경 감지**: 날짜가 바뀔 때마다 중앙에 날짜 구분선 배지 (`--- 2026년 8월 15일 ---`) 자동 생성.
+
+### 3. 상단 참여자 다중 필터바 (Multi-select Filter)
+- 대화록에 존재하는 모든 고유 작성자 목록을 칩 버튼 형태로 제공.
+- **전체 선택 / 전체 해제** 토글 지원.
+- 참여자 1명 이상 자유롭게 선택 가능하며 실시간으로 필터링된 대화만 렌더링.
+- 특정 참여자만 선택 시, 해당 참여자의 대화가 존재하는 날짜 헤더만 깔끔하게 함께 표시.
+- 실시간 대화 검색(키워드 하이라이팅) 지원.
+
+### 4. 4가지 다중 포맷 내보내기 (Export Options)
+현재 화면에 필터링된 상태 그대로 원하는 형식으로 다운로드할 수 있습니다:
+1. **HTML (`.html`)**: 화이트 모드 스타일과 대화 UI 구조가 인라인 CSS로 포함된 독립형(Standalone) 단일 파일. 외부 인터넷 연결 없이 브라우저에서 바로 열어도 동일하게 시각적으로 표시됩니다.
+2. **TXT (`.txt`)**: 필터링된 대화 내용만 카카오톡 원본 내보내기 형식(`일시, 이름 : 내용`) 그대로 생성.
+3. **CSV (`.csv`)**: Excel 및 데이터 분석용 (`[날짜/시간, 작성자, 메시지 내용]`). 엑셀에서 한글이 깨지지 않도록 **UTF-8 BOM (`\uFEFF`)** 필수 적용.
+4. **Markdown (`.md`)**: 날짜별 헤더(`## 📅 2026년 8월 15일`)와 인용구(`> **이름** (시간): 내용`) 스타일로 Notion 및 Obsidian 보관에 최적화된 문서 생성.
+
+---
+
+## 🛠 로컬 개발 실행
+
+```bash
+# 의존성 설치
+npm install
+
+# 로컬 개발 서버 실행
+npm run dev
+
+# 프로덕션 빌드
+npm run build
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
